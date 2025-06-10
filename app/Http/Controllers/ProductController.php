@@ -6,6 +6,7 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -14,7 +15,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->query('per_page', 10);
+        $perPage = $request->query('per_page', 2);
         $product = Product::paginate($perPage);
         return response()->json($product, 200);
     }
@@ -38,35 +39,43 @@ class ProductController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-
-        $products = $request->all();
-
-        if (!is_array($products)) {
-            return response()->json(['error' => 'Input must be an array of products'], 422);
-        }
-
-        $rules = [
-            '*.name' => 'required|string|max:255',
-            '*.sku' => 'required|string|max:255',
-            '*.description' => 'required|string|max:255',
-            '*.unit_price' => 'required|numeric',
-            '*.code' => 'required',
-            '*.quantity' => 'required|numeric',
-        ];
-
-        $validator = Validator::make($products, $rules);
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'sku' => 'required|string|max:255|unique:products,sku',
+            'description' => 'required|string',
+            'unit_price' => 'required|numeric|min:0',
+            'code' => 'required|string|unique:products,code',
+            'quantity' => 'required|integer|min:0',
+            'expiry_date' => 'required|date|min:0',
+            'category' => 'required|integer|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $createdProducts = [];
+        $validated = $validator->validated();
+        $imagePath = null;
 
-        foreach ($products as $productData) {
-            $createdProducts[] = Product::create($productData);
+        if ($request->hasFile('image')) {
+            $storedPath = $request->file('image')->store('products', 'public');
+            $imagePath = '/storage/' . $storedPath;
         }
 
-        return response()->json($createdProducts, 201);
+        $product = Product::create([
+            'name' => $validated['name'],
+            'sku' => $validated['sku'],
+            'description' => $validated['description'],
+            'unit_price' => $validated['unit_price'],
+            'code' => $validated['code'],
+            'quantity' => $validated['quantity'],
+            'category' => $validated['category'],
+            'expiry_date' => $validated['expiry_date'],
+            'image_path' => $imagePath,
+        ]);
+
+        return response()->json($product, 201);
     }
 
     /**
@@ -82,7 +91,10 @@ class ProductController extends Controller
             'name' => 'string|max:255',
             'sku' => 'string|max:255',
             'description' => 'string|max:255',
-            'unit_price' => 'numeric'
+            'unit_price' => 'numeric',
+            'category' => 'numeric',
+            'expiry_date' => 'date',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -92,7 +104,20 @@ class ProductController extends Controller
         $product = Product::find($id);
         if (!$product) return response()->json(['error' => 'Not found'], 404);
 
-        $product->update($validator->validated());
+        $data = $validator->validated();
+
+        // Handle image upload if present
+        if ($request->hasFile('image')) {
+            // Delete old image if it exists
+            if ($product->image_path) {
+                Storage::disk('public')->delete($product->image_path);
+            }
+
+            $imagePath = $request->file('image')->store('products', 'public');
+            $data['image_path'] = $imagePath;
+        }
+
+        $product->update($data);
         return response()->json($product, 200);
 
     }
@@ -109,7 +134,18 @@ class ProductController extends Controller
         $product = Product::find($id);
         if (!$product) return response()->json(['error' => 'Not found'], 404);
 
+        // Delete associated image
+        if ($product->image_path) {
+            Storage::disk('public')->delete($product->image_path);
+        }
+
         $product->delete();
         return response()->json(['message' => 'Deleted'], 200);
+    }
+
+    public function GetProductByCategory($id)
+    {
+        $products = Product::where('category',$id)->paginate(2);;
+        return response()->json($products, 200);
     }
 }

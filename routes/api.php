@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\OrderController;
@@ -29,6 +30,7 @@ Route::middleware(['jwt.verify'])->group(function () {
         Route::apiResource('suppliers', SupplierController::class);
         Route::apiResource('inventories', InventoryController::class);
         Route::apiResource('transactions', TransactionController::class);
+        Route::get('productByCategory/{id}', [ProductController::class, 'GetProductByCategory']);
 
         Route::get('product-suppliers', [ProductSupplierController::class, 'index']);
         Route::get('product-suppliers/{product_id}/{supplier_id}', [ProductSupplierController::class, 'show']);
@@ -43,5 +45,10 @@ Route::middleware(['jwt.verify'])->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
     });
 });
+
+Route::post('/send-reset-code', [ResetPasswordController::class, 'sendResetCode']);
+Route::post('/password/verify-code', [ResetPasswordController::class, 'verifyCode']);
+Route::post('/password/reset', [ResetPasswordController::class, 'resetPassword']);
+
 Route::get('featured_products',[ProductSupplierController::class,'featured_products']);
 

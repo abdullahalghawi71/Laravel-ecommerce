@@ -15,11 +15,14 @@ return new class extends Migration
             $table->id();
             $table->string('sku');
             $table->string('name');
+            $table->date('expiry_date');
             $table->integer('quantity');
             $table->string('code')->unique();
+            $table->string('category');
             $table->text('description')->nullable();
             $table->boolean('sent')->default(0);
             $table->decimal('unit_price', 10, 2);
+            $table->string('image_path')->nullable();
             $table->timestamps();
         });
     }

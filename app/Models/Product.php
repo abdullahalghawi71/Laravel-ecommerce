@@ -17,7 +17,10 @@ class Product extends Model
         'unit_price',
         'code',
         'quantity',
-        'sent'
+        'sent',
+        'expiry_date',
+        'category',
+        'image_path'
     ];
 
     public function inventories(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -35,5 +38,13 @@ class Product extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function getImageUrlAttribute()
+    {
+        if ($this->image_path) {
+            return asset('storage/' . $this->image_path);
+        }
+        return null;
     }
 }
