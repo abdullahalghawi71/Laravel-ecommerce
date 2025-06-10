@@ -1,0 +1,28 @@
+{
+    "version": 2,
+    "framework": "laravel",
+    "builds": [
+        {
+            "src": "public/index.php",
+            "use": "@vercel/php"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "public/index.php"
+        }
+    ],
+    "env": {
+        "APP_ENV": "production",
+        "APP_DEBUG": "false",
+        "APP_URL": "https://your-project-name.vercel.app",
+        "APP_KEY": "${APP_KEY}",
+        "DB_CONNECTION": "mysql",
+        "DB_HOST": "${DB_HOST}",
+        "DB_PORT": "${DB_PORT}",
+        "DB_DATABASE": "${DB_DATABASE}",
+        "DB_USERNAME": "${DB_USERNAME}",
+        "DB_PASSWORD": "${DB_PASSWORD}"
+    }
+}
