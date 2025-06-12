@@ -134,7 +134,6 @@ class ProductController extends Controller
         $product = Product::find($id);
         if (!$product) return response()->json(['error' => 'Not found'], 404);
 
-        // Delete associated image
         if ($product->image_path) {
             Storage::disk('public')->delete($product->image_path);
         }

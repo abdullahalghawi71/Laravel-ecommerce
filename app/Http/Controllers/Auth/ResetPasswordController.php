@@ -19,25 +19,20 @@ class ResetPasswordController extends Controller
      */
     public function sendResetCode(Request $request)
     {
-        // 1. Validate email input
         $validated = $request->validate([
             'email' => 'required|email|exists:users,email',
         ]);
 
-        // 2. Delete existing codes for this email (if any)
         PasswordReset::where('email', $validated['email'])->delete();
 
-        // 3. Generate a new 6-digit code
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        // 4. Store the code using Eloquent
         PasswordReset::create([
             'email' => $validated['email'],
             'code' => $code,
             'created_at' => now(),
         ]);
 
-        // 5. Attempt to send the email
         try {
             Mail::to($validated['email'])->send(new ResetPasswordCodeMail($code));
 
@@ -62,34 +57,33 @@ class ResetPasswordController extends Controller
      */
     public function verifyCode(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'email' => 'required|email|exists:users,email',
-            'code' => 'required|digits:6'
+            'code' => 'required|digits:6',
         ]);
 
-        $record = DB::table('password_resets')
-            ->where('email', $request->email)
-            ->where('code', $request->code)
+        $record = PasswordReset::where('email', $validated['email'])
+            ->where('code', $validated['code'])
             ->first();
 
         if (!$record) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid verification code.'
+                'message' => 'Invalid verification code.',
             ], 422);
         }
 
         if (Carbon::parse($record->created_at)->addMinutes(15)->isPast()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Verification code has expired.'
+                'message' => 'Verification code has expired.',
             ], 422);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Code verified successfully.',
-            'email' => $request->email
+            'email' => $validated['email'],
         ]);
     }
 
@@ -98,36 +92,32 @@ class ResetPasswordController extends Controller
      */
     public function resetPassword(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'email' => 'required|email|exists:users,email',
             'code' => 'required|digits:6',
-            'password' => 'required|min:8|confirmed'
+            'password' => 'required|min:8|confirmed',
         ]);
 
-        // Verify code again for security
-        $record = DB::table('password_resets')
-            ->where('email', $request->email)
-            ->where('code', $request->code)
+        $record = PasswordReset::where('email', $validated['email'])
+            ->where('code', $validated['code'])
             ->first();
 
         if (!$record) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid reset attempt.'
+                'message' => 'Invalid reset attempt.',
             ], 422);
         }
 
-        // Update user password
-        $user = User::where('email', $request->email)->first();
-        $user->password = Hash::make($request->password);
+        $user = User::where('email', $validated['email'])->first();
+        $user->password = Hash::make($validated['password']);
         $user->save();
 
-        // Clean up
-        DB::table('password_resets')->where('email', $request->email)->delete();
+        PasswordReset::where('email', $validated['email'])->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Password has been reset successfully.'
+            'message' => 'Password has been reset successfully.',
         ]);
     }
 }

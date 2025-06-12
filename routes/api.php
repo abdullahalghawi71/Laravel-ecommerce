@@ -2,13 +2,16 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\IssueController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\OrderProcessController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductSupplierController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
@@ -30,6 +33,8 @@ Route::middleware(['jwt.verify'])->group(function () {
         Route::apiResource('suppliers', SupplierController::class);
         Route::apiResource('inventories', InventoryController::class);
         Route::apiResource('transactions', TransactionController::class);
+        Route::apiResource('issue',IssueController::class);
+        Route::apiResource('report',ReportController::class);
         Route::get('productByCategory/{id}', [ProductController::class, 'GetProductByCategory']);
 
         Route::get('product-suppliers', [ProductSupplierController::class, 'index']);
@@ -39,6 +44,7 @@ Route::middleware(['jwt.verify'])->group(function () {
         Route::delete('product-suppliers/{product_id}/{supplier_id}', [ProductSupplierController::class, 'destroy']);
 
         Route::post('make_product', [OrderProcessController::class, 'store']);
+        Route::get('statistics',[DashboardController::class, 'statistics']);
 
 
         Route::get('me', [AuthController::class, 'me']);
