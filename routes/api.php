@@ -34,6 +34,7 @@ Route::middleware(['jwt.verify'])->group(function () {
         Route::apiResource('transactions', TransactionController::class);
         Route::apiResource('issue',IssueController::class);
         Route::apiResource('report',ReportController::class);
+        Route::apiResource('employee',DashboardController::class);
         Route::get('productByCategory/{id}', [ProductController::class, 'GetProductByCategory']);
 
         Route::get('product-suppliers', [ProductSupplierController::class, 'index']);
