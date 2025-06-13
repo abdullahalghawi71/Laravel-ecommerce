@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->date('expiry_date');
             $table->integer('quantity');
-            $table->string('code')->unique()->default(0);
+            $table->string('code')->unique();
             $table->string('category');
             $table->text('description')->nullable();
             $table->boolean('sent')->default(0);
