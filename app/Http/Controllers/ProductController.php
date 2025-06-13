@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
+
 
 class ProductController extends Controller
 {
@@ -27,6 +29,43 @@ class ProductController extends Controller
     {
         $product = Product::find($id);
         if (!$product) return response()->json(['error' => 'Not found'], 404);
+
+        if ($product->sent2) {
+            return response()->json($product, 200);
+        }
+
+        $orderItem = $product->orderItems()->with('order')->latest()->first();
+
+        if (!$orderItem || !$orderItem->order) {
+            return response()->json([
+                'product' => $product,
+                'warning' => 'No order found for this product to send to AI.'
+            ], 200);
+        }
+
+        $payload = [
+            'Price' => $orderItem->unit_price,
+            'Quantity' => $orderItem->quantity,
+            'InvoiceDate' => $orderItem->order->order_date,
+            'Invoice' => $product->code,
+        ];
+
+        try {
+            $response = Http::post('http://127.0.0.1:5000/predict', $payload);
+            //TODO : check the update from the the flask
+            if ($response->successful()) {
+                $result = $response->json();
+                $product->update([
+                    'fast' => $result['fast'],
+                    'sent2' => true
+                ]);
+            } else {
+                \Log::error('AI response error', ['response' => $response->body()]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('AI call failed', ['message' => $e->getMessage()]);
+        }
+
         return response()->json($product, 200);
     }
 
@@ -83,7 +122,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role !== 'manager') {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -94,7 +133,8 @@ class ProductController extends Controller
             'unit_price' => 'numeric',
             'category' => 'numeric',
             'expiry_date' => 'date',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            "quantity" => 'numeric',
+//            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -102,24 +142,14 @@ class ProductController extends Controller
         }
 
         $product = Product::find($id);
+
         if (!$product) return response()->json(['error' => 'Not found'], 404);
 
         $data = $validator->validated();
 
-        // Handle image upload if present
-        if ($request->hasFile('image')) {
-            // Delete old image if it exists
-            if ($product->image_path) {
-                Storage::disk('public')->delete($product->image_path);
-            }
-
-            $imagePath = $request->file('image')->store('products', 'public');
-            $data['image_path'] = $imagePath;
-        }
-
         $product->update($data);
-        return response()->json($product, 200);
 
+        return response()->json($product, 200);
     }
 
     /**
@@ -127,7 +157,7 @@ class ProductController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role !== 'manager') {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 

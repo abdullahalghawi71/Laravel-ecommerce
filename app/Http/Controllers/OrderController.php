@@ -28,22 +28,29 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'order_date' => 'required|date',
             'total_price' => 'required|string|max:255',
             'user_id' => 'required|exists:users,id'
         ]);
-
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $user = User::where('id', $request->input('user_id'))->where('role', 'user')->first();
+        $user = User::where('id', $request->input('user_id'))
+            ->where('role', 'user')
+            ->first();
+
         if (!$user) {
-            return response()->json(['error' => 'The provided user_id is not a user'], 422);
+            return response()->json(['error' => 'The provided user_id is not a regular user'], 422);
         }
 
-        $order = Order::create($validator->validated());
+        $order = Order::create([
+            'order_date' => now(),
+            'status' => 'pending',
+            'user_id' => $request->input('user_id'),
+            'total_price' => $request->input('total_price'),
+        ]);
+
         return response()->json(['order' => $order], 201);
     }
 

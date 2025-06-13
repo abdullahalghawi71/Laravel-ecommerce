@@ -24,7 +24,6 @@ Route::post('register', [AuthController::class, 'register']);
 
 Route::middleware(['jwt.verify'])->group(function () {
     Route::middleware(['jwt.auth'])->group(function () {
-
         Route::apiResource('products', ProductController::class);
         Route::apiResource('warehouses', WarehouseController::class);
         Route::apiResource('locations', LocationController::class);

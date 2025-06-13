@@ -23,7 +23,7 @@ class AuthController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users',
             'password' => 'required|string|min:6|confirmed',
-            'role'     => 'required|in:manager,employee,user,admin',
+            'role'     => 'required|in:manager,employee,user',
             'warehouse_id' => ''
         ]);
 

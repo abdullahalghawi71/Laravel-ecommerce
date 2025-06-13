@@ -11,16 +11,8 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'sku',
-        'name',
-        'description',
-        'unit_price',
-        'code',
-        'quantity',
-        'sent',
-        'expiry_date',
-        'category',
-        'image_path'
+        'sku', 'name', 'description', 'unit_price', 'quantity',
+        'category', 'expiry_date', 'image_path', 'sent', 'sent2', 'fast'
     ];
 
     public function inventories(): \Illuminate\Database\Eloquent\Relations\HasMany

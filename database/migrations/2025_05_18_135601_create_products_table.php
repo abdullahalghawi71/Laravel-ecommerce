@@ -17,10 +17,12 @@ return new class extends Migration
             $table->string('name');
             $table->date('expiry_date');
             $table->integer('quantity');
-            $table->string('code')->unique();
+            $table->string('code')->unique()->default(0);
             $table->string('category');
             $table->text('description')->nullable();
             $table->boolean('sent')->default(0);
+            $table->boolean('sent2')->default(0);
+            $table->boolean('fast')->default(0);
             $table->decimal('unit_price', 10, 2);
             $table->string('image_path')->nullable();
             $table->timestamps();
