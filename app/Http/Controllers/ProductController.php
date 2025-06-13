@@ -87,7 +87,7 @@ class ProductController extends Controller
             'quantity' => 'required|integer|min:0',
             'expiry_date' => 'required|date|min:0',
             'category' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -98,8 +98,17 @@ class ProductController extends Controller
         $imagePath = null;
 
         if ($request->hasFile('image')) {
-            $storedPath = $request->file('image')->store('products', 'public');
-            $imagePath = '/storage/' . $storedPath;
+            $image = $request->file('image');
+
+            // Optional: check if it's valid
+            if ($image->isValid()) {
+                $storedPath = $image->store('products', 'public');
+                $imagePath = '/storage/' . $storedPath;
+            } else {
+                return response()->json(['error' => 'Invalid image file'], 400);
+            }
+        } else {
+            return response()->json(['error' => 'Image not detected in request'], 400);
         }
 
         $product = Product::create([
