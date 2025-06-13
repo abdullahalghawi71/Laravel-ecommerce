@@ -58,13 +58,14 @@ class ResetPasswordController extends Controller
     public function verifyCode(Request $request)
     {
         $validated = $request->validate([
-            'email' => 'required|email|exists:users,email',
+//            'email' => 'required|email|exists:users,email',
             'code' => 'required|digits:6',
         ]);
 
-        $record = PasswordReset::where('email', $validated['email'])
-            ->where('code', $validated['code'])
-            ->first();
+        $record = PasswordReset::where('code', $validated['code'])->first();
+//        $record = PasswordReset::where('email', $validated['email'])
+//            ->where('code', $validated['code'])
+//            ->first();
 
         if (!$record) {
             return response()->json([
