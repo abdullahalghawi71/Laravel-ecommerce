@@ -47,7 +47,6 @@ Route::middleware(['jwt.verify'])->group(function () {
         Route::post('make_product', [OrderProcessController::class, 'store']);
         Route::get('statistics',[DashboardController::class, 'statistics']);
 
-
         Route::get('me', [AuthController::class, 'me']);
         Route::post('logout', [AuthController::class, 'logout']);
     });

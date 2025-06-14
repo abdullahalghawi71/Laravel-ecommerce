@@ -40,7 +40,7 @@ class OrderController extends Controller
             ->first();
 
         if (!$user) {
-            return response()->json(['error' => 'The provided user_id is not a regular user'], 422);
+            return response()->json(['error' => 'The provided user_id not found'], 422);
         }
 
         $order = Order::create([
