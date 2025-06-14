@@ -85,11 +85,9 @@ class DashboardController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        if ($request->has('name'))     $user->name = $request->name;
-        if ($request->has('email'))    $user->email = $request->email;
-        if ($request->has('password')) $user->password = Hash::make($request->password);
+        $data = $validator->validated();
 
-        $user->save();
+        $user->update($data);
 
         return response()->json(['message' => 'Employee updated successfully.', 'user' => $user], 200);
     }

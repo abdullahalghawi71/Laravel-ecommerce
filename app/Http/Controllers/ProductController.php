@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +16,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->query('per_page', 2);
+        $perPage = $request->query('per_page', 10);
         $product = Product::paginate($perPage);
         return response()->json($product, 200);
     }
@@ -103,7 +102,7 @@ class ProductController extends Controller
             // Optional: check if it's valid
             if ($image->isValid()) {
                 $storedPath = $image->store('products', 'public');
-                $imagePath = '/storage/' . $storedPath;
+                $imagePath = asset('storage/' . $storedPath);
             } else {
                 return response()->json(['error' => 'Invalid image file'], 400);
             }
