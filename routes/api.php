@@ -16,6 +16,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WarehouseController;
 
@@ -50,6 +51,16 @@ Route::middleware(['jwt.verify'])->group(function () {
         Route::get('me', [AuthController::class, 'me']);
         Route::post('logout', [AuthController::class, 'logout']);
     });
+});
+
+Route::get('/product-image/{filename}', function ($filename) {
+    $path = storage_path('app/public/products/' . $filename);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    return response()->file($path);
 });
 
 Route::post('/send-reset-code', [ResetPasswordController::class, 'sendResetCode']);

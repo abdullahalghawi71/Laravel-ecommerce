@@ -102,7 +102,7 @@ class ProductController extends Controller
             // Optional: check if it's valid
             if ($image->isValid()) {
                 $storedPath = $image->store('products', 'public');
-                $imagePath = url('/product-image/' . basename($storedPath));
+                $imagePath = url('/product-image/api' . basename($storedPath));
             } else {
                 return response()->json(['error' => 'Invalid image file'], 400);
             }
