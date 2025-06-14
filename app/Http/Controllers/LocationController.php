@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLocationRequest;
 use App\Http\Requests\UpdateLocationRequest;
+use App\Models\Inventory;
 use App\Models\Location;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
@@ -90,13 +91,10 @@ class LocationController extends Controller
             return response()->json(['error' => 'Location not found'], 404);
         }
 
-        // Update all inventories for this location: set quantity to 0
-        foreach ($location->inventories as $inventory) {
-            $inventory->quantity = 0;
-            $inventory->save();
-        }
+        $inventory = Inventory::where("location_id",$location->id)->first();
 
-        // Now delete the location
+        $inventory->location_id = 0;
+        $inventory->save();
         $location->delete();
 
         return response()->json(['message' => 'Location deleted and related inventories updated to quantity 0'], 200);
