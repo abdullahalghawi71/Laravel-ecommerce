@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('expiry_date')->nullable();
 
             $table->foreignId('product_id')->constrained('products');
-            $table->foreignId('location_id')->nullable()->constrained('locations');
+            $table->foreignId('location_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
         });
     }

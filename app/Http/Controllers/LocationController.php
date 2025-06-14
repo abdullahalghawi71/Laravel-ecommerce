@@ -91,12 +91,12 @@ class LocationController extends Controller
             return response()->json(['error' => 'Location not found'], 404);
         }
 
-        $inventory = Inventory::where("location_id",$location->id)->first();
+        foreach ($location->inventories as $inventory) {
+            $inventory->location_id = null; // not 0
+            $inventory->save();
+        }
 
-        $inventory->location_id = 0;
-        $inventory->save();
         $location->delete();
-
-        return response()->json(['message' => 'Location deleted and related inventories updated to quantity 0'], 200);
+        return response()->json(['message' => 'Location deleted and related inventories disassociated'], 200);
     }
 }
