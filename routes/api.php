@@ -53,15 +53,6 @@ Route::middleware(['jwt.verify'])->group(function () {
     });
 });
 
-Route::get('/product-image/{filename}', function ($filename) {
-    $path = storage_path('app/public/products/' . $filename);
-
-    if (!File::exists($path)) {
-        abort(404);
-    }
-
-    return response()->file($path);
-});
 
 Route::post('/send-reset-code', [ResetPasswordController::class, 'sendResetCode']);
 Route::post('/password/verify-code', [ResetPasswordController::class, 'verifyCode']);
@@ -69,3 +60,10 @@ Route::post('/password/reset', [ResetPasswordController::class, 'resetPassword']
 
 Route::get('featured_products',[ProductSupplierController::class,'featured_products']);
 
+Route::get('/product-image/{filename}', function ($filename) {
+    $path = storage_path('app/public/products/' . $filename);
+    if (!File::exists($path)) {
+        abort(404);
+    }
+    return response()->file($path);
+});

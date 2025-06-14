@@ -37,7 +37,6 @@ class OrderController extends Controller
         }
 
         $user = User::where('id', $request->input('user_id'))
-            ->where('role', 'user')
             ->first();
 
         if (!$user) {
