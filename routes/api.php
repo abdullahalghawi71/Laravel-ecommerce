@@ -54,7 +54,7 @@ Route::middleware(['jwt.verify'])->group(function () {
 
 
 Route::post('/send-reset-code', [ResetPasswordController::class, 'sendResetCode']);
-Route::post('/password/verify-code', [ResetPasswordController::class, 'verifyCode']);
+Route::post('/password/verify/code', [ResetPasswordController::class, 'verifyCode']);
 Route::post('/password/reset', [ResetPasswordController::class, 'resetPassword']);
 
 Route::get('featured_products',[ProductSupplierController::class,'featured_products']);
