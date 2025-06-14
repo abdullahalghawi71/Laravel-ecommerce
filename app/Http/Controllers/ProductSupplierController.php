@@ -87,6 +87,7 @@ class ProductSupplierController extends Controller
                 'unit_price' => $product->unit_price,
             ];
         })->toArray();
+
         //Todo : update the product when sent to AI
 
         try {

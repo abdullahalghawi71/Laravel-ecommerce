@@ -17,7 +17,6 @@ class IssueController extends Controller
         return response()->json(Issue::with('product')->paginate($request->query('per_page', 10)), 200);
     }
 
-
     /**
      * Store a newly created resource in storage.
      */

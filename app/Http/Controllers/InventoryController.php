@@ -36,6 +36,7 @@ class InventoryController extends Controller
         if ($validator->fails()) return response()->json($validator->errors(), 422);
 
         $inventory = Inventory::create($validator->validated());
+
         return response()->json($inventory, 201);
     }
 
@@ -68,6 +69,7 @@ class InventoryController extends Controller
         if ($validator->fails()) return response()->json($validator->errors(), 422);
 
         $inventory->update($validator->validated());
+
         return response()->json($inventory);
     }
 

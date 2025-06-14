@@ -57,6 +57,7 @@ class DashboardController extends Controller
         }
 
         $user = User::where('role', 'employee')->find($id);
+
         if (!$user) {
             return response()->json(['error' => 'Employee not found'], 404);
         }
@@ -99,6 +100,7 @@ class DashboardController extends Controller
         }
 
         $user = User::where('role', 'employee')->find($id);
+
         if (!$user) {
             return response()->json(['error' => 'Employee not found'], 404);
         }

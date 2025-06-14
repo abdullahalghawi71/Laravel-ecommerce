@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Mail\ResetPasswordCodeMail;
 use App\Models\PasswordReset;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class ResetPasswordController extends Controller
 {
@@ -57,15 +57,15 @@ class ResetPasswordController extends Controller
      */
     public function verifyCode(Request $request)
     {
-        $validated = $request->validate([
-//            'email' => 'required|email|exists:users,email',
+        $validator = Validator::make($request->all(), [
             'code' => 'required|digits:6',
         ]);
 
-        $record = PasswordReset::where('code', $validated['code'])->first();
-//        $record = PasswordReset::where('email', $validated['email'])
-//            ->where('code', $validated['code'])
-//            ->first();
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $record = PasswordReset::where('code', $validator->validated())->first();
 
         if (!$record) {
             return response()->json([
@@ -84,7 +84,6 @@ class ResetPasswordController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Code verified successfully.',
-            'email' => $validated['email'],
         ]);
     }
 

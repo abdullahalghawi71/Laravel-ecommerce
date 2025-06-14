@@ -92,7 +92,7 @@ class LocationController extends Controller
         }
 
         foreach ($location->inventories as $inventory) {
-            $inventory->location_id = null; // not 0
+            $inventory->location_id = null;
             $inventory->save();
         }
 
