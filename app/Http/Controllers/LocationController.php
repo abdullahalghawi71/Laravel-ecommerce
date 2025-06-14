@@ -85,10 +85,20 @@ class LocationController extends Controller
     public function destroy($id)
     {
         $location = Location::find($id);
-        if(!$location){
+
+        if (!$location) {
             return response()->json(['error' => 'Location not found'], 404);
         }
+
+        // Update all inventories for this location: set quantity to 0
+        foreach ($location->inventories as $inventory) {
+            $inventory->quantity = 0;
+            $inventory->save();
+        }
+
+        // Now delete the location
         $location->delete();
-        return response()->json(['message' => 'Location deleted '], 200);
+
+        return response()->json(['message' => 'Location deleted and related inventories updated to quantity 0'], 200);
     }
 }
