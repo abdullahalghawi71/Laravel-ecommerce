@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreOrderItemRequest;
 use App\Http\Requests\UpdateOrderItemRequest;
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Facades\Http;
 use App\Models\OrderItem;
@@ -67,6 +68,9 @@ class OrderItemController extends Controller
         if (!$orderItem) {
             return response()->json(['error' => 'Order Items not found'], 404);
         }
+
+        $order = Order::where('id',$orderItem->order_id)->first();
+        $order->delete();
 
         $orderItem->delete();
         return response()->json(['message' => 'Order Items deleted'], 200);
