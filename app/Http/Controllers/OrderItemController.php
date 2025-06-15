@@ -69,10 +69,12 @@ class OrderItemController extends Controller
             return response()->json(['error' => 'Order Items not found'], 404);
         }
 
-        $order = Order::where('id',$orderItem->order_id)->first();
+        $order = Order::find($orderItem->order_id);
+
+        OrderItem::where('order_id', $order->id)->delete();
+
         $order->delete();
 
-        $orderItem->delete();
         return response()->json(['message' => 'Order Items deleted'], 200);
     }
 }
