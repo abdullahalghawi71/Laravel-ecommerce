@@ -10,13 +10,11 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductSupplierController extends Controller
 {
-
     public function index()
     {
         $data = ProductSupplier::with(['product', 'supplier'])->paginate(10);
         return response()->json($data);
     }
-
 
     public function show($product_id, $supplier_id)
     {
@@ -68,7 +66,6 @@ class ProductSupplierController extends Controller
     }
     public function featured_products()
     {
-
         $products = Product::where('sent', false)->get();
 
         $count = $products->count();
@@ -76,7 +73,6 @@ class ProductSupplierController extends Controller
         if ($count < 2) {
             \Log::info("Only $count unsent products found. Not sending yet.");
             return 0;
-
         }
 
         $payload = $products->map(function ($product) {
@@ -134,8 +130,5 @@ class ProductSupplierController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
-
-        return 0;
-
     }
 }

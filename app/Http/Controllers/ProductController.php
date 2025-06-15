@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
@@ -133,29 +134,35 @@ class ProductController extends Controller
         if ($request->user()->role !== 'manager') {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-
         $validator = Validator::make($request->all(), [
-            'name' => 'string|max:255',
-            'sku' => 'string|max:255',
-            'description' => 'string|max:255',
-            'unit_price' => 'numeric',
-            'category' => 'numeric',
-            'expiry_date' => 'date',
-            "quantity" => 'numeric',
-//            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'name' => 'sometimes|string|max:255',
+            'sku' => 'sometimes|string|max:255|unique:products,sku,' . $id,
+            'description' => 'sometimes|string',
+            'unit_price' => 'sometimes|numeric|min:0',
+            'category' => 'sometimes|integer|min:0',
+            'expiry_date' => 'sometimes|date',
+            'quantity' => 'sometimes|integer|min:0',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $product = Product::find($id);
-
-        if (!$product) return response()->json(['error' => 'Not found'], 404);
-
         $data = $validator->validated();
+        if (empty($data)) {
+            return response()->json(['message' => 'No fields provided for update'], 400);
+        }
 
-        $product->update($data);
+        $updated = DB::table('products')
+            ->where('id', $id)
+            ->update(array_merge($data, ['updated_at' => now()]));
+
+        if ($updated === 0) {
+            return response()->json(['message' => 'No rows updated or product not found'], 404);
+        }
+
+        // Optional: return the updated product
+        $product = DB::table('products')->where('id', $id)->first();
 
         return response()->json($product, 200);
     }
