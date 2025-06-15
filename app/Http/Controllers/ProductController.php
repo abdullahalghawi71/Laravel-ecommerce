@@ -189,7 +189,7 @@ class ProductController extends Controller
 
     public function GetProductByCategory($id)
     {
-        $products = Product::where('category',$id)->paginate(2);;
+        $products = Product::where('category',$id)->paginate(10);;
         return response()->json($products, 200);
     }
 }
