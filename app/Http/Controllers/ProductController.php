@@ -136,7 +136,7 @@ class ProductController extends Controller
         }
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
-            'sku' => 'sometimes|string|max:255|unique:products,sku,' . $id,
+            'sku' => 'sometimes|string|max:255' . $id,
             'description' => 'sometimes|string',
             'unit_price' => 'sometimes|numeric|min:0',
             'category' => 'sometimes|integer|min:0',
