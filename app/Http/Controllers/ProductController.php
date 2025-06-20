@@ -80,7 +80,7 @@ class ProductController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'sku' => 'required|string|max:255|unique:products,sku',
+            'sku' => 'required|string|max:255',
             'description' => 'required|string',
             'unit_price' => 'required|numeric|min:0',
             'code' => 'required|string|unique:products,code',
